@@ -30,42 +30,40 @@ jobs:
 
       - name: Create directories
         run: |
-          mkdir -p data/plots
-          mkdir -p data/model
+          mkdir -p data/results/plots
+          mkdir -p data/results/saved_models
 
       - name: Run data pipeline
         run: |
           cd data
-          python CNNCifar10Mock-1.py
+          python CNNCifar10Mock.py
 
-      - name: Check for changes
+      - name: check for changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .
-          git diff --staged --quiet || echo "changes=true" >> $GITHUB_ENV
+          git add . 
+          git diff --staged --quiet || echo "changes = true" >> $GITHUB_ENV
 
-      - name: Commit and push if changes
+      - name: commit and push if changes
         if: env.changes == 'true'
         run: |
           git commit -m "update data hyperparameters"
           git push
 
-      - name: Debug
+      - name: debug
         run: |
           echo "Checking contents of the directory"
-          ls -R data/
+          ls -R data/results/plots  # Check if files are in the correct directory
 
-      # Ensure that the plots are saved and available for download
       - name: Save generated plot
         uses: actions/upload-artifact@v3
         with:
           name: generated-plot
-          path: data/plots/training_history.png  # Make sure this file is being generated and saved in the correct path
+          path: data/results/plots/training_history.png  # Correct the path here
 
-      # Ensure that the model is saved and available for download
       - name: Save model
         uses: actions/upload-artifact@v3
         with:
-          name: cnn-model  # Name your model artifact for easy identification
-          path: data/model/cnn_cifar10.h5  # Make sure this file is saved at this path by your training script
+          name: model
+          path: data/results/saved_models/cnn_cifar10.h5  # Correct the path here
